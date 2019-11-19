@@ -17,4 +17,12 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/maintenance', 'MaintenanceController@index')->name('home');
+Route::group(['middleware' => ['auth']], function () {
+    Route::group(['prefix' => 'maintenance'], function () {
+        Route::get('/', 'MaintenanceController@index')->name('home');
+        Route::get('/list', 'MaintenanceController@list')->name('list');
+        Route::post('/store', 'MaintenanceController@store')->name('store');
+        Route::post('/delete', 'MaintenanceController@delete')->name('delete');
+    });
+});
+
