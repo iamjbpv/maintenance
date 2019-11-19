@@ -118,7 +118,8 @@
 @section('script')
 <script type="text/javascript">
 $(document).ready(function(){
-    var dt; var _txnMode; var _selectedID; var _selectRowObj; var _selectedStatusId;
+    var dt; var _txnMode; var _selectedID; var _selectRowObj; 
+    // var _selectedStatusId;
     var initializeControls=function(){
       dt=$('#tbl_maintenance').DataTable({
             "aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
@@ -131,11 +132,11 @@ $(document).ready(function(){
                 { targets:[4],data: "column" },
                 {
                     targets:[5],
-                    render: function (data){
+                    render: function (data, type, full, meta){
                         return '<center>'+
                           '<button class="btn btn-primary btn-sm btn-xsj" name="edit_info"><i class="fas fa-edit"></i></button>'+
                           '<button name="remove_info" class="btn btn-danger btn-sm btn-xsj"><i class="fas fa-trash"></i></button>'+
-                          '<button name="preview_items" class="btn btn-secondary btn-sm btn-xsj"><i class="fas fa-list"></i></button>'+
+                          '<a href="/maintenance/items/'+full.id+'" name="preview_items" class="btn btn-secondary btn-sm btn-xsj"><i class="fas fa-list"></i></button>'+
                         '</center>';
                     }
                 }
@@ -184,16 +185,6 @@ $(document).ready(function(){
         var data=dt.row(_selectRowObj).data();
         _selectedID=data.id;
         $('#frame_delete_item').modal('show');
-    });
-
-    $('#tbl_maintenance tbody').on('click','button[name="preview_items"]',function(){
-        _selectRowObj=$(this).closest('tr');
-        var data=dt.row(_selectRowObj).data();
-        _selectedID=data.id;
-        previewItems();
-        $('#wrapper_table_list').hide();
-        $('#wrapper_table_preview').show();
-       
     });
 
     $('#btn_yes').click(function(){
@@ -260,59 +251,7 @@ $(document).ready(function(){
             beforeSend: showSpinningProgress($('#btn_create'),true)
         });
     };
-
-    $('.items-wrapper').on('click','button[name="set_status"]',function(){
-        _selectedStatusId = $(this).data('id')
-        $('#modal_change_status').modal('toggle');
-    });
-
-    $('#btn_save_status').click(function(){
-        updateItemStatus(_selectedStatusId);
-    });
-
-    $('#back_to_list').click(function(){
-        $('#wrapper_table_list').show();
-        $('#wrapper_table_preview').hide();
-    });
-
-    var updateItemStatus=function(){
-        var _data=$('#frm_status').serializeArray();
-        _data.push({name : "id" ,value : _selectedStatusId});
-        return $.ajax({
-            dataType:"json",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            type:"POST",
-            url:"maintenance/update-item",
-            data:_data,
-            success: function (response) {
-              showSpinningProgress($('#btn_save_status'),false)
-              if(response.stat=="error"){
-                  toast(response.stat, response.message, response.title);
-                  return;
-              }
-              toast(response.stat, response.message, response.title);
-              previewItems();
-              $('#modal_change_status').modal('toggle');
-            },
-            error: function (response) {
-                var errors = response.responseJSON.errors;
-                showSpinningProgress($('#btn_save_status'),false)
-                $('input,textarea,select').each(function(){
-                      var _elem=$(this);
-                      _elem.next().html('');
-                      $.each(errors,function(name,value){
-                          if(_elem.attr('name')==name){
-                              _elem.next().html( value );
-                          }
-                      });
-                });
-            },
-            beforeSend: showSpinningProgress($('#btn_save_status'),true)
-        });
-    };
-
+    
     var removeMaintenance=function(){
         return $.ajax({
             dataType:"json",
@@ -323,31 +262,6 @@ $(document).ready(function(){
               id : _selectedID
             },
             beforeSend: showSpinningProgress($('#btn_yes'),true)
-        });
-    };
-
-    var previewItems=function(){
-        return $.ajax({
-            dataType:"json",
-            type:"GET",
-            url:"maintenance/preview-items/"+_selectedID,
-            success: function(response){
-              var html = '<div class="d-flex flex-row justify-content-start mx-auto">';
-              var current_row = 1;
-              const map1 = response.map((data) => {
-                if(current_row == data.row_position){ 
-                  html += format(data);
-                }
-                if(current_row != data.row_position){
-                  html += '</div>';
-                  html += '<div class="d-flex flex-row justify-content-start mx-auto">';
-                  html += format(data);
-                  current_row = data.row_position;
-                }
-              });
-              html += '</div>';
-              $('.items-wrapper').html(html);
-            }
         });
     };
 
@@ -429,12 +343,6 @@ $(document).ready(function(){
         e.html(text);
       }
         
-    };
-
-    function format ( data ) {
-        return '<div class="item-box d-flex flex-column">'+data.description+
-                '<button class="btn btn-primary btn-sm" name="set_status" data-id="'+data.id+'">'+data.tablestatus.name+'</button>'+
-                '</div>';
     };
 });
 </script>
