@@ -21,9 +21,16 @@
     
 
     <style>
-
     .data-error {
         color: #f44336 !important;
+    }
+
+    .bg-disabled {
+        background-color: #e0e0e0  !important;
+    }
+
+    #frm_maintenance label,input {
+        text-indent: 5px;
     }
     </style>
 </head>

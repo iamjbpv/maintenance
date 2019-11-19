@@ -48,7 +48,6 @@ class MaintenanceController extends Controller
             'column' => 'Column'
         ];
         $validated = request()->validate([
-            'area_code' =>  'required',
             'description' =>  'required',
             'floor' =>  'required',
             'row' =>  'required',
@@ -60,6 +59,7 @@ class MaintenanceController extends Controller
         if ($create) {
             $create->fill($validated);
         } else {
+            $validated["area_code"] = self::generateAreaCode(); //generate area code and replace
             $create = new Maintenance($validated);
         }
         
@@ -93,5 +93,10 @@ class MaintenanceController extends Controller
             $response['message'] = 'Ooops! Something went wrong.';
         }
         return $response;
+    }
+
+    public function generateAreaCode()
+    {
+        return mt_rand(100, 999);
     }
 }

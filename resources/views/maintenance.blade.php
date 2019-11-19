@@ -40,10 +40,10 @@
       </div>
       <div class="modal-body mx-3">
         <form id="frm_maintenance">
-          <div class="md-form mb-3">
+          <div class="md-form mb-3 bg-disabled">
             <i class="fas fa-user prefix grey-text"></i>
-            <input type="text" name="area_code" data-error="Area Code" id="area-code" class="form-control mx-0 w-100" required>
-            <label for="area-code" class="mx-0">Area Code*</label>
+            <input type="text" name="area_code" data-error="Area Code" id="area-code" class="form-control mx-0 w-100 text-center" disabled>
+            <label for="area-code" class="mx-0">Area Code</label>
             <small class="data-error"></small>
           </div>
           <div class="md-form mb-3">
@@ -133,6 +133,12 @@ $(document).ready(function(){
 
     $('#add_info').click(function(){
         _txnMode="new";
+        $('#frm_maintenance input,textarea').each(function(){
+            var _elem=$(this);
+            $.each(_elem,function(name,value){
+             _elem.next().removeClass('active');
+            });
+        });
         clearFields($('#frm_maintenance'))
         $('.txn_title').html('Add Maintenance');
         $("#modal_add_item").modal('toggle');
@@ -177,29 +183,11 @@ $(document).ready(function(){
     $('#btn_create').click(function(){
         if(validateRequiredFields($('#frm_maintenance'))){
             if(_txnMode==="new"){
-              createMaintenance().done(function(response){
-                  if(response.stat=="error"){
-                      toast(response.stat, response.message, response.title);
-                      return;
-                  }
-                  toast(response.stat, response.message, response.title);
-                  dt.row.add(response.row_data).draw();
-              }).always(function(){
-                  $('#modal_add_item').modal('toggle');
-              });
+              createMaintenance();
               return;
             }
             if(_txnMode==="edit"){
-              updateMaintenance().done(function(response){
-                  if(response.stat=="error"){
-                      toast(response.stat, response.message, response.title);
-                      return;
-                  }
-                  toast(response.stat, response.message, response.title);
-                  dt.row(_selectRowObj).data(response.row_data).draw();
-              }).always(function(){
-                  $('#modal_add_item').modal('toggle');
-              });
+              updateMaintenance();
               return;
             }
         }
@@ -215,6 +203,26 @@ $(document).ready(function(){
             "type":"POST",
             "url":"maintenance/store",
             "data":_data,
+            success: function (response) {
+                if(response.stat=="error"){
+                    toast(response.stat, response.message, response.title);
+                    return;
+                }
+                toast(response.stat, response.message, response.title);
+                dt.row.add(response.row_data).draw();
+                $('#modal_add_item').modal('toggle');
+            },
+            error: function (response) {
+                var errors = response.responseJSON.errors;
+                $('input,textarea').each(function(){
+                    var _elem=$(this);
+                    $.each(errors,function(name,value){
+                        if(_elem.attr('name')==name){
+                            _elem.next().next().html(_elem.data('error') + ' is required!');
+                        }
+                    });
+                });
+            }
             // "beforeSend": showSpinningProgress($('#btn_save'))
         });
     };
@@ -230,6 +238,26 @@ $(document).ready(function(){
             type:"POST",
             url:"maintenance/store",
             data:_data,
+            success: function (response) {
+                if(response.stat=="error"){
+                    toast(response.stat, response.message, response.title);
+                    return;
+                }
+                toast(response.stat, response.message, response.title);
+                dt.row(_selectRowObj).data(response.row_data).draw();
+                $('#modal_add_item').modal('toggle');
+            },
+            error: function (response) {
+                var errors = response.responseJSON.errors;
+                $('input,textarea').each(function(){
+                    var _elem=$(this);
+                    $.each(errors,function(name,value){
+                        if(_elem.attr('name')==name){
+                            _elem.next().next().html(_elem.data('error') + ' is required!');
+                        }
+                    });
+                });
+            }
             // "beforeSend": showSpinningProgress($('#btn_save'))
         });
     };
