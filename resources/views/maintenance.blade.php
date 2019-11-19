@@ -133,6 +133,7 @@ $(document).ready(function(){
 
     $('#add_info').click(function(){
         _txnMode="new";
+        clearFields($('#frm_maintenance'))
         $('.txn_title').html('Add Maintenance');
         $("#modal_add_item").modal('toggle');
     });
@@ -177,13 +178,12 @@ $(document).ready(function(){
         if(validateRequiredFields($('#frm_maintenance'))){
             if(_txnMode==="new"){
               createMaintenance().done(function(response){
-                  console.log(response);
+                  if(response.stat=="error"){
+                      toast(response.stat, response.message, response.title);
+                      return;
+                  }
                   toast(response.stat, response.message, response.title);
-                  // if(response.stat=="error"){
-                  //     return;
-                  // }
                   dt.row.add(response.row_data).draw();
-                  // clearFields($('#frm_branch'))
               }).always(function(){
                   $('#modal_add_item').modal('toggle');
               });
@@ -191,9 +191,12 @@ $(document).ready(function(){
             }
             if(_txnMode==="edit"){
               updateMaintenance().done(function(response){
+                  if(response.stat=="error"){
+                      toast(response.stat, response.message, response.title);
+                      return;
+                  }
                   toast(response.stat, response.message, response.title);
                   dt.row(_selectRowObj).data(response.row_data).draw();
-                  // clearFields($('#frm_branch'))
               }).always(function(){
                   $('#modal_add_item').modal('toggle');
               });
