@@ -95,6 +95,33 @@
 </div>
 <!-- Frame Modal Bottom -->
 
+<div class="modal fade" id="modal_items" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-modal="true">
+  <div class="modal-dialog modal-lg modal-notify modal-info" role="document">
+    <!--Content-->
+    <div class="modal-content">
+      <!--Header-->
+      <div class="modal-header">
+        <p class="heading lead">Preview Table</p>
+
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" class="white-text">×</span>
+        </button>
+      </div>
+
+      <!--Body-->
+      <div class="modal-body">
+          
+      </div>
+
+      <!--Footer-->
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+    <!--/.Content-->
+  </div>
+</div>
+
 
 @endsection
 @section('script')
@@ -117,7 +144,7 @@ $(document).ready(function(){
                         return '<center>'+
                           '<button class="btn btn-primary btn-sm btn-xsj" name="edit_info"><i class="fas fa-edit"></i></button>'+
                           '<button name="remove_info" class="btn btn-danger btn-sm btn-xsj"><i class="fas fa-trash"></i></button>'+
-                          '<button name="remove_info" class="btn btn-secondary btn-sm btn-xsj"><i class="fas fa-list"></i></button>'+
+                          '<button name="preview_items" class="btn btn-secondary btn-sm btn-xsj"><i class="fas fa-list"></i></button>'+
                         '</center>';
                     }
                 }
@@ -166,6 +193,13 @@ $(document).ready(function(){
         var data=dt.row(_selectRowObj).data();
         _selectedID=data.id;
         $('#frame_delete_item').modal('show');
+    });
+
+    $('#tbl_maintenance tbody').on('click','button[name="preview_items"]',function(){
+        _selectRowObj=$(this).closest('tr');
+        var data=dt.row(_selectRowObj).data();
+        _selectedID=data.id;
+        $('#modal_items').modal('show');
     });
 
     $('#btn_yes').click(function(){

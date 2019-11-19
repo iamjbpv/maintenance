@@ -76,7 +76,13 @@ class MaintenanceController extends Controller
                     for($c=1;$c<=$validated["column"];$c++){
                         $description = 'R'.$r.'C'.$c;
                         $table_status_id = self::findLastValue($currentTable, $description, $create->id);
-                        $maintenance_items[] = array('description'=> $description, 'maintenance_id'=> $create->id, 'table_status_id'=> $table_status_id );
+                        $maintenance_items[] = array(
+                            'description'=> $description,
+                            'maintenance_id'=> $create->id,
+                            'table_status_id'=> $table_status_id,
+                            'row_position'=> $r,
+                            'col_position'=> $c,
+                        );
                     }
                 }
                 MaintenanceItem::insert($maintenance_items);
@@ -85,7 +91,13 @@ class MaintenanceController extends Controller
                 for ($r=1;$r<=$validated["row"];$r++) {
                     for($c=1;$c<=$validated["column"];$c++){
                         $description = 'R'.$r.'C'.$c;
-                        $maintenance_items[] = array('description'=> $description, 'maintenance_id'=> $create->id, 'table_status_id'=> '2' );
+                        $maintenance_items[] = array(
+                            'description'=> $description,
+                            'maintenance_id'=> $create->id,
+                            'table_status_id'=> '2',
+                            'row_position'=> $r,
+                            'col_position'=> $c,
+                        );
                     }
                 }
                 MaintenanceItem::insert($maintenance_items);

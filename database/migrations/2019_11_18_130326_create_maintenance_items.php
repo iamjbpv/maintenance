@@ -18,6 +18,8 @@ class CreateMaintenanceItems extends Migration
             $table->integer('maintenance_id');
             $table->string('description');
             $table->integer('table_status_id');
+            $table->integer('row_position');
+            $table->integer('col_position');
             $table->timestamps();
         });
     }
