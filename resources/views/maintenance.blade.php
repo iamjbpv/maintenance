@@ -4,25 +4,8 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <div class="card">
-                <div class="card-header align-middle">Maintenance <button class="float-right btn btn-success btn-sm" id="add_info">Add</button></div>
-                <div class="card-body">
-                    <table class="table table-striped table-bordered dataTable" id="tbl_maintenance">
-                        <thead>
-                            <tr>
-                                <th scope="col">Area Code</th>
-                                <th scope="col">Description</th>
-                                <th scope="col">Floor</th>
-                                <th scope="col">Row</th>
-                                <th scope="col">Column</th>
-                                <th class="text-center" scope="col">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+          @include('maintenance.list')
+          @include('maintenance.items')
         </div>
     </div>
 </div>
@@ -95,39 +78,47 @@
 </div>
 <!-- Frame Modal Bottom -->
 
-<div class="modal fade" id="modal_items" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-modal="true">
-  <div class="modal-dialog modal-lg modal-notify modal-info" role="document">
-    <!--Content-->
-    <div class="modal-content">
-      <!--Header-->
-      <div class="modal-header">
-        <p class="heading lead">Preview Table</p>
+<!-- Central Modal Small -->
+<div class="modal fade" id="modal_change_status" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true">
 
+  <!-- Change class .modal-sm to change the size of the modal -->
+  <div class="modal-dialog modal-sm" role="document">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title w-100" id="myModalLabel">Change Status</h4>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true" class="white-text">×</span>
+          <span aria-hidden="true">&times;</span>
         </button>
       </div>
-
-      <!--Body-->
       <div class="modal-body">
-          
+        <form id="frm_status">
+            <div class="form-group">
+              <label>Status: </label>
+              <select name="table_status_id" class="browser-default custom-select">
+                <option value="" selected>Select Status</option>
+                @foreach($table_status as $status)
+                  <option value="{{ $status->id }}">{{  $status->name }}</option>
+                @endforeach
+              </select>
+              <small class="data-error"></small>
+            </div>
+        </form>
       </div>
-
-      <!--Footer-->
       <div class="modal-footer">
-        <button class="btn btn-primary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn_save_status">Save</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
       </div>
     </div>
-    <!--/.Content-->
   </div>
 </div>
-
-
+<!-- Central Modal Small -->
 @endsection
 @section('script')
 <script type="text/javascript">
 $(document).ready(function(){
-    var dt; var _txnMode; var _selectedID; var _selectRowObj;
+    var dt; var _txnMode; var _selectedID; var _selectRowObj; var _selectedStatusId;
     var initializeControls=function(){
       dt=$('#tbl_maintenance').DataTable({
             "aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
@@ -199,7 +190,10 @@ $(document).ready(function(){
         _selectRowObj=$(this).closest('tr');
         var data=dt.row(_selectRowObj).data();
         _selectedID=data.id;
-        $('#modal_items').modal('show');
+        previewItems();
+        $('#wrapper_table_list').hide();
+        $('#wrapper_table_preview').show();
+       
     });
 
     $('#btn_yes').click(function(){
@@ -267,6 +261,58 @@ $(document).ready(function(){
         });
     };
 
+    $('.items-wrapper').on('click','button[name="set_status"]',function(){
+        _selectedStatusId = $(this).data('id')
+        $('#modal_change_status').modal('toggle');
+    });
+
+    $('#btn_save_status').click(function(){
+        updateItemStatus(_selectedStatusId);
+    });
+
+    $('#back_to_list').click(function(){
+        $('#wrapper_table_list').show();
+        $('#wrapper_table_preview').hide();
+    });
+
+    var updateItemStatus=function(){
+        var _data=$('#frm_status').serializeArray();
+        _data.push({name : "id" ,value : _selectedStatusId});
+        return $.ajax({
+            dataType:"json",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            type:"POST",
+            url:"maintenance/update-item",
+            data:_data,
+            success: function (response) {
+              showSpinningProgress($('#btn_save_status'),false)
+              if(response.stat=="error"){
+                  toast(response.stat, response.message, response.title);
+                  return;
+              }
+              toast(response.stat, response.message, response.title);
+              previewItems();
+              $('#modal_change_status').modal('toggle');
+            },
+            error: function (response) {
+                var errors = response.responseJSON.errors;
+                showSpinningProgress($('#btn_save_status'),false)
+                $('input,textarea,select').each(function(){
+                      var _elem=$(this);
+                      _elem.next().html('');
+                      $.each(errors,function(name,value){
+                          if(_elem.attr('name')==name){
+                              _elem.next().html( value );
+                          }
+                      });
+                });
+            },
+            beforeSend: showSpinningProgress($('#btn_save_status'),true)
+        });
+    };
+
     var removeMaintenance=function(){
         return $.ajax({
             dataType:"json",
@@ -280,6 +326,32 @@ $(document).ready(function(){
         });
     };
 
+    var previewItems=function(){
+        return $.ajax({
+            dataType:"json",
+            type:"GET",
+            url:"maintenance/preview-items/"+_selectedID,
+            success: function(response){
+              var html = '<div class="d-flex flex-row justify-content-start mx-auto">';
+              var current_row = 1;
+              const map1 = response.map((data) => {
+                if(current_row == data.row_position){ 
+                  html += format(data);
+                }
+                if(current_row != data.row_position){
+                  html += '</div>';
+                  html += '<div class="d-flex flex-row justify-content-start mx-auto">';
+                  html += format(data);
+                  current_row = data.row_position;
+                }
+              });
+              html += '</div>';
+              $('.items-wrapper').html(html);
+            }
+        });
+    };
+
+    //for maintenance form
     function succesHandler(response){
         showSpinningProgress($('#btn_create'),false);
         if(response.stat=="error"){
@@ -295,11 +367,11 @@ $(document).ready(function(){
         }
         $('#modal_add_item').modal('toggle');
     }
-
+    //for maintenance form
     function errorHandler(response){
         var errors = response.responseJSON.errors;
         showSpinningProgress($('#btn_create'),false);
-        $('input,textarea').each(function(){
+        $('input,textarea,select').each(function(){
               var _elem=$(this);
               _elem.next().next().html('');
               $.each(errors,function(name,value){
@@ -357,6 +429,12 @@ $(document).ready(function(){
         e.html(text);
       }
         
+    };
+
+    function format ( data ) {
+        return '<div class="item-box d-flex flex-column">'+data.description+
+                '<button class="btn btn-primary btn-sm" name="set_status" data-id="'+data.id+'">'+data.tablestatus.name+'</button>'+
+                '</div>';
     };
 });
 </script>

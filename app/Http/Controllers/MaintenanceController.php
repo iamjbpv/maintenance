@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Maintenance;
 use App\MaintenanceItem;
+use App\TableStatus;
 
 class MaintenanceController extends Controller
 {
@@ -26,9 +27,10 @@ class MaintenanceController extends Controller
     public function index()
     {
         $maintenance = Maintenance::get();
+        $table_status = TableStatus::get();
         $title = 'Maintenance';
 
-    	return view('maintenance', compact('maintenance', 'title'));
+    	return view('maintenance', compact('maintenance','table_status', 'title'));
     }
 
     public function list()
@@ -124,6 +126,36 @@ class MaintenanceController extends Controller
             $response['stat'] = "success";
             $response['title'] = 'Success';
             $response['message'] = 'Awesome! Maintenance Deleted.';
+        } else {
+            $response['stat'] = "error";
+            $response['title'] = 'Failed';
+            $response['message'] = 'Ooops! Something went wrong.';
+        }
+        return $response;
+    }
+
+    public function previewItems()
+    {
+        $maintenance = MaintenanceItem::with('tablestatus')->where('maintenance_id', request()->id)->get();
+    	return $maintenance;
+    }
+
+    public function updateItem()
+    {
+        $customFieldNames = [
+            'table_status_id' => 'Table Status'
+        ];
+        $validated = request()->validate([
+            'table_status_id' =>  'required|numeric'
+        ], [], $customFieldNames);
+        
+        $maintenance = MaintenanceItem::where('id', request()->id)->first();
+        $maintenance->fill($validated);
+        $maintenance->save();
+        if ($maintenance) {
+            $response['stat'] = "success";
+            $response['title'] = 'Success';
+            $response['message'] = 'Awesome! Maintenance Item Updated.';
         } else {
             $response['stat'] = "error";
             $response['title'] = 'Failed';

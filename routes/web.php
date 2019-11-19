@@ -23,6 +23,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/list', 'MaintenanceController@list')->name('list');
         Route::post('/store', 'MaintenanceController@store')->name('store');
         Route::post('/delete', 'MaintenanceController@delete')->name('delete');
+        Route::get('/preview-items/{id}', 'MaintenanceController@previewItems')->name('preview-items');
+        Route::post('/update-item', 'MaintenanceController@updateItem')->name('update-item');
     });
 });
 

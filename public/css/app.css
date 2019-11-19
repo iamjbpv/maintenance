@@ -22371,3 +22371,14 @@ input {
   padding-bottom: 0.5rem !important;
 }
 
+.item-box {
+  padding: 20px 15px;
+  width: 170px;
+  border: 1px solid black;
+}
+
+.items-wrapper {
+  width: 100%;
+  overflow-x: scroll;
+}
+
