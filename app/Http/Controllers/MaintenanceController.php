@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Maintenance;
+use App\MaintenanceItem;
 
 class MaintenanceController extends Controller
 {
@@ -50,8 +51,8 @@ class MaintenanceController extends Controller
         $validated = request()->validate([
             'description' =>  'required',
             'floor' =>  'required',
-            'row' =>  'required',
-            'column' =>  'required',
+            'row' =>  'required|numeric|min:0|not_in:0',
+            'column' =>  'required|numeric|min:0|not_in:0',
         ], [], $customFieldNames);
 
         $create = Maintenance::where('id', $id)->first();
@@ -66,6 +67,30 @@ class MaintenanceController extends Controller
         $store = $create->save();
         
         if ($store) {
+            $currentTable = MaintenanceItem::where('maintenance_id', $create->id)->get();
+            // echo count($currentTable);
+            // print_r($currentTable);
+            if(count($currentTable) > 0){
+                $deletedRows = MaintenanceItem::where('maintenance_id', $create->id)->delete();
+                for ($r=1;$r<=$validated["row"];$r++) {
+                    for($c=1;$c<=$validated["column"];$c++){
+                        $description = 'R'.$r.'C'.$c;
+                        $table_status_id = self::findLastValue($currentTable, $description, $create->id);
+                        $maintenance_items[] = array('description'=> $description, 'maintenance_id'=> $create->id, 'table_status_id'=> $table_status_id );
+                    }
+                }
+                MaintenanceItem::insert($maintenance_items);
+            }
+            else {
+                for ($r=1;$r<=$validated["row"];$r++) {
+                    for($c=1;$c<=$validated["column"];$c++){
+                        $description = 'R'.$r.'C'.$c;
+                        $maintenance_items[] = array('description'=> $description, 'maintenance_id'=> $create->id, 'table_status_id'=> '2' );
+                    }
+                }
+                MaintenanceItem::insert($maintenance_items);
+            }
+
             $row_data = Maintenance::find($create->id);
             $response['stat'] = "success";
             $response['message'] = 'Success';
@@ -98,5 +123,16 @@ class MaintenanceController extends Controller
     public function generateAreaCode()
     {
         return mt_rand(100, 999);
+    }
+
+    public function findLastValue($currentTable, $description, $maintenance_id)
+    {
+        foreach($currentTable->toArray() as $current){
+            if(in_array($description, $current) && $current['maintenance_id'] == $maintenance_id) {
+                return $current['table_status_id'];
+            }
+        }
+
+        return 2;//return as active if not found
     }
 }

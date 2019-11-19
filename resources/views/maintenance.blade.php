@@ -135,6 +135,7 @@ $(document).ready(function(){
         _txnMode="new";
         $('#frm_maintenance input,textarea').each(function(){
             var _elem=$(this);
+            _elem.next().next().html('');
             $.each(_elem,function(name,value){
              _elem.next().removeClass('active');
             });
@@ -204,26 +205,12 @@ $(document).ready(function(){
             "url":"maintenance/store",
             "data":_data,
             success: function (response) {
-                if(response.stat=="error"){
-                    toast(response.stat, response.message, response.title);
-                    return;
-                }
-                toast(response.stat, response.message, response.title);
-                dt.row.add(response.row_data).draw();
-                $('#modal_add_item').modal('toggle');
+                succesHandler(response);
             },
             error: function (response) {
-                var errors = response.responseJSON.errors;
-                $('input,textarea').each(function(){
-                    var _elem=$(this);
-                    $.each(errors,function(name,value){
-                        if(_elem.attr('name')==name){
-                            _elem.next().next().html(_elem.data('error') + ' is required!');
-                        }
-                    });
-                });
-            }
-            // "beforeSend": showSpinningProgress($('#btn_save'))
+                errorHandler(response);
+            },
+            beforeSend: showSpinningProgress($('#btn_create'),true)
         });
     };
 
@@ -239,26 +226,12 @@ $(document).ready(function(){
             url:"maintenance/store",
             data:_data,
             success: function (response) {
-                if(response.stat=="error"){
-                    toast(response.stat, response.message, response.title);
-                    return;
-                }
-                toast(response.stat, response.message, response.title);
-                dt.row(_selectRowObj).data(response.row_data).draw();
-                $('#modal_add_item').modal('toggle');
+                succesHandler(response);
             },
             error: function (response) {
-                var errors = response.responseJSON.errors;
-                $('input,textarea').each(function(){
-                    var _elem=$(this);
-                    $.each(errors,function(name,value){
-                        if(_elem.attr('name')==name){
-                            _elem.next().next().html(_elem.data('error') + ' is required!');
-                        }
-                    });
-                });
-            }
-            // "beforeSend": showSpinningProgress($('#btn_save'))
+                errorHandler(response);
+            },
+            beforeSend: showSpinningProgress($('#btn_create'),true)
         });
     };
 
@@ -273,6 +246,36 @@ $(document).ready(function(){
             }
         });
     };
+
+    function succesHandler(response){
+        showSpinningProgress($('#btn_create'),false);
+        if(response.stat=="error"){
+            toast(response.stat, response.message, response.title);
+            return;
+        }
+        toast(response.stat, response.message, response.title);
+        if(_txnMode=="new"){
+          dt.row.add(response.row_data).draw(false);
+        }
+        if(_txnMode=="edit"){
+          dt.row(_selectRowObj).data(response.row_data).draw(false);
+        }
+        $('#modal_add_item').modal('toggle');
+    }
+
+    function errorHandler(response){
+        var errors = response.responseJSON.errors;
+        showSpinningProgress($('#btn_create'),false);
+        $('input,textarea').each(function(){
+              var _elem=$(this);
+              _elem.next().next().html('');
+              $.each(errors,function(name,value){
+                  if(_elem.attr('name')==name){
+                      _elem.next().next().html( value );
+                  }
+              });
+        });
+    }
 
     function toast(type, message, title) {
         toastr.options = {
@@ -312,6 +315,15 @@ $(document).ready(function(){
     var clearFields=function(f){
         $('input,textarea',f).val('');
         $(f).find('input:first').focus();
+    };
+
+    var showSpinningProgress = function(e,type){
+      if(type) {
+        e.html('<div class="custom-spinner spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>');
+      }else {
+        e.html('Save');
+      }
+        
     };
 });
 </script>

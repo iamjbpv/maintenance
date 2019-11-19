@@ -15,6 +15,7 @@ class CreateMaintenanceItems extends Migration
     {
         Schema::create('maintenance_items', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->integer('maintenance_id');
             $table->string('description');
             $table->integer('table_status_id');
             $table->timestamps();
