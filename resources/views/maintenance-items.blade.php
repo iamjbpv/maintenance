@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <div class="card" id="wrapper_table_preview">
-    <div class="card-header align-middle">Table Preview <a href="{{ route('home') }}" class="float-right btn btn-primary btn-sm" id="back_to_list">Back</a></div>
+    <div class="card-header align-middle">Table Preview for <strong>{{ $maintenance_desc }}</strong> <a href="{{ route('home') }}" class="float-right btn btn-primary btn-sm" id="back_to_list">Back</a></div>
         <div class="card-body">
             <div class="items-wrapper p-3 text-center d-flex justify-content-center flex-column">
             </div>
