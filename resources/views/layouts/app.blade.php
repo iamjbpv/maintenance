@@ -16,28 +16,8 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-    
-
-    <style>
-    .data-error {
-        color: #f44336 !important;
-    }
-
-    .bg-disabled {
-        background-color: #e0e0e0  !important;
-    }
-
-    #frm_maintenance label, input {
-        text-indent: 5px;
-    }
-
-    .custom-spinner {
-        width: 15px;
-        height: 15px;
-    }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div id="app">

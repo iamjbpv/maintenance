@@ -5,9 +5,9 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">Maintenance <button class="float-right btn btn-success" id="add_info">Add</button></div>
+                <div class="card-header align-middle">Maintenance <button class="float-right btn btn-success btn-sm" id="add_info">Add</button></div>
                 <div class="card-body">
-                    <table class="table" id="tbl_maintenance">
+                    <table class="table table-striped table-bordered dataTable" id="tbl_maintenance">
                         <thead>
                             <tr>
                                 <th scope="col">Area Code</th>
@@ -41,31 +41,26 @@
       <div class="modal-body mx-3">
         <form id="frm_maintenance">
           <div class="md-form mb-3 bg-disabled">
-            <i class="fas fa-user prefix grey-text"></i>
             <input type="text" name="area_code" data-error="Area Code" id="area-code" class="form-control mx-0 w-100 text-center" disabled>
             <label for="area-code" class="mx-0">Area Code</label>
             <small class="data-error"></small>
           </div>
           <div class="md-form mb-3">
-            <i class="fas fa-envelope prefix grey-text"></i>
             <input type="text" name="description" data-error="Description" id="description" class="form-control mx-0 w-100" required>
             <label for="description" class="mx-0">Description*</label>
             <small class="data-error"></small>
           </div>
           <div class="md-form mb-3">
-            <i class="fas fa-envelope prefix grey-text"></i>
             <input type="text" name="floor" data-error="Floor" id="floor" class="form-control mx-0 w-100" required>
             <label for="floor" class="mx-0">Floor*</label>
             <small class="data-error"></small>
           </div>
           <div class="md-form mb-3">
-            <i class="fas fa-envelope prefix grey-text"></i>
             <input type="number" name="row" data-error="Row" id="row" class="form-control mx-0 w-100" required>
             <label for="row" class="mx-0">Row*</label>
             <small class="data-error"></small>
           </div>
           <div class="md-form mb-3">
-            <i class="fas fa-envelope prefix grey-text"></i>
             <input type="number" name="column" data-error="Column" id="column" class="form-control mx-0 w-100" required>
             <label for="column" class="mx-0">Column*</label>
             <small class="data-error"></small>
@@ -73,7 +68,7 @@
         </form>
       </div>
       <div class="modal-footer d-flex justify-content-center">
-        <button class="btn btn-success" id="btn_create">Add</button>
+        <button class="btn btn-success" id="btn_create">Save</button>
       </div>
     </div>
   </div>
@@ -120,7 +115,9 @@ $(document).ready(function(){
                     targets:[5],
                     render: function (data){
                         return '<center>'+
-                        '<button class="btn btn-primary" name="edit_info">Edit</button><button name="remove_info" class="btn btn-danger">Delete</button>'+
+                          '<button class="btn btn-primary btn-sm btn-xsj" name="edit_info"><i class="fas fa-edit"></i></button>'+
+                          '<button name="remove_info" class="btn btn-danger btn-sm btn-xsj"><i class="fas fa-trash"></i></button>'+
+                          '<button name="remove_info" class="btn btn-secondary btn-sm btn-xsj"><i class="fas fa-list"></i></button>'+
                         '</center>';
                     }
                 }
@@ -173,6 +170,7 @@ $(document).ready(function(){
 
     $('#btn_yes').click(function(){
         removeMaintenance().done(function(response){
+          showSpinningProgress($('#btn_yes'),false,"YES")
           if(response.stat){
             dt.row(_selectRowObj).remove().draw();
             $('#frame_delete_item').modal('hide');
@@ -237,13 +235,14 @@ $(document).ready(function(){
 
     var removeMaintenance=function(){
         return $.ajax({
-            "dataType":"json",
-            "type":"POST",
-            "url":"maintenance/delete",
-            "data":{
+            dataType:"json",
+            type:"POST",
+            url:"maintenance/delete",
+            data:{
               _token: "{{ csrf_token() }}",
               id : _selectedID
-            }
+            },
+            beforeSend: showSpinningProgress($('#btn_yes'),true)
         });
     };
 
@@ -317,11 +316,11 @@ $(document).ready(function(){
         $(f).find('input:first').focus();
     };
 
-    var showSpinningProgress = function(e,type){
+    var showSpinningProgress = function(e,type,text='Save'){
       if(type) {
         e.html('<div class="custom-spinner spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>');
       }else {
-        e.html('Save');
+        e.html(text);
       }
         
     };
