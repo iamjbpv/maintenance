@@ -47,6 +47,7 @@ class MaintenanceTableSeeder extends Seeder
             'column' => $col,
         ]);
         
+        $maintenance_items = [];
         for ($r=1;$r<=$row;$r++) {
             for($c=1;$c<=$col;$c++){
                 $description = 'R'.$r.'C'.$c;

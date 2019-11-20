@@ -97,6 +97,7 @@ class MaintenanceController extends Controller
     {
         $maintenance = Maintenance::where('id', request()->id)->first();
         $maintenance->delete();
+        MaintenanceItem::where('maintenance_id', request()->id)->delete(); //also delete its items
         if ($maintenance) {
             $response['stat'] = "success";
             $response['title'] = 'Success';
