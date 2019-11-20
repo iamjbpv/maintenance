@@ -53,8 +53,8 @@ class MaintenanceController extends Controller
         $validated = request()->validate([
             'description' =>  'required',
             'floor' =>  'required',
-            'row' =>  'required|numeric|min:0|not_in:0|max:500',
-            'column' =>  'required|numeric|min:0|not_in:0|max:500',
+            'row' =>  'required|numeric|min:0|not_in:0|max:100',
+            'column' =>  'required|numeric|min:0|not_in:0|max:100',
         ], [], $customFieldNames);
 
         $create = Maintenance::where('id', $id)->first();
@@ -78,10 +78,11 @@ class MaintenanceController extends Controller
                 $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,false,$currentTable);
             }
 
-            foreach (array_chunk($maintenance_items,1000) as $chunk_items)  
-            {
-                MaintenanceItem::insert($chunk_items);
-            }
+            MaintenanceItem::insert($maintenance_items);
+            // foreach (array_chunk($maintenance_items,1000) as $chunk_items)  
+            // {
+            //     MaintenanceItem::insert($chunk_items);
+            // }
 
             $row_data = Maintenance::find($create->id);
             $response['stat'] = "success";
