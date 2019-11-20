@@ -107,6 +107,11 @@
               });
               html += '</div>';
               $('.items-wrapper').html(html);
+            },
+            beforeSend: function(){
+              $('.items-wrapper').html('<div class="mx-auto my-5"><div class="spinner-border text-primary p-5" role="status">'+
+                                        '<span class="sr-only">Loading...</span>'+
+                                      '</div></div>');
             }
         });
     };

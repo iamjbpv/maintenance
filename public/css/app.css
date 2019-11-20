@@ -22381,6 +22381,7 @@ input {
 .items-wrapper {
   width: 100%;
   overflow-x: scroll;
+  overflow-y: hidden;
 }
 
 .card-title {
