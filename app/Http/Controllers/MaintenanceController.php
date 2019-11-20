@@ -55,8 +55,8 @@ class MaintenanceController extends Controller
         $validated = request()->validate([
             'description' =>  'required',
             'floor' =>  'required',
-            'row' =>  'required|numeric|min:0|not_in:0|max:100',
-            'column' =>  'required|numeric|min:0|not_in:0|max:100',
+            'row' =>  'required|numeric|min:0|not_in:0|max:150',
+            'column' =>  'required|numeric|min:0|not_in:0|max:150',
         ], [], $customFieldNames);
 
         $create = Maintenance::where('id', $id)->first();
@@ -74,12 +74,21 @@ class MaintenanceController extends Controller
             $currentTable = [];
             //lets use chunk to handle large amounts of data
             MaintenanceItem::where('maintenance_id',$create->id)->orderBy('id')->chunk(1000, function ($items) use(&$currentTable){
-                $currentTable[] = $items->toArray();
+                foreach ($items as $item) {
+                    $currentTable[] = array(
+                        'id'=> $item->id,
+                        'description'=> $item->description,
+                        'maintenance_id'=> $item->maintenance_id,
+                        'table_status_id'=> $item->table_status_id,
+                        'row_position'=> $item->row_position,
+                        'col_position'=> $item->col_position
+                    );
+                }
             });
 
             if(count($currentTable) > 0){
                 MaintenanceItem::where('maintenance_id', $create->id)->delete();
-                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,true,$currentTable[0]);
+                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,true,$currentTable);
             }
             else {
                 $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,false,$currentTable);
@@ -122,14 +131,8 @@ class MaintenanceController extends Controller
 
     public function previewItems()
     {
-        $maintenance = [];
-        //lets use chunk to handle large amounts of data
-        MaintenanceItem::with('tablestatus')->where('maintenance_id',request()->id)->orderBy('id')->chunk(1000, function ($items) use(&$maintenance){
-           
-                $maintenance[] = $items;
-        });
-        // $maintenance = MaintenanceItem::with('tablestatus')->where('maintenance_id', request()->id)->get();
-    	return $maintenance[0];
+        $maintenance = MaintenanceItem::with('tablestatus')->where('maintenance_id', request()->id)->get();
+    	return $maintenance;
     }
 
     public function updateItem()
