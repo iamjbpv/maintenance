@@ -179,8 +179,9 @@
     };
 
     function format ( data ) {
-        return '<div class="item-box d-flex flex-column">'+data.description+
-                '<button class="btn btn-primary btn-sm" name="set_status" data-id="'+data.id+'">'+data.tablestatus.name+'</button>'+
+        var disabled = (data.tablestatus.id == 4 ) ? 'disabled' : '';
+        return '<div class="item-box d-flex flex-column"><strong>'+data.description+'</strong>'+
+                '<button class="btn btn-sm status-'+data.tablestatus.name+'" name="set_status" data-id="'+data.id+'" '+disabled+'>'+data.tablestatus.name+'</button>'+
                 '</div>';
     };
 </script>

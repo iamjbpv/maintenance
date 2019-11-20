@@ -5,7 +5,6 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
           @include('maintenance.list')
-          @include('maintenance.items')
         </div>
     </div>
 </div>
@@ -174,6 +173,7 @@ $(document).ready(function(){
                     _elem.val(value);
                     _elem.next().addClass('active');
                 }
+                _elem.next().next().html('');
             });
         });
 

@@ -27,8 +27,11 @@
 
 .item-box {
     padding: 20px 15px;
+    margin: 5px;
     width: 170px;
-    border: 1px solid black;
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(46, 45, 45, 0.75);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(46, 45, 45, 0.75);
+    box-shadow: 0px 0px 5px 0px rgba(46, 45, 45, 0.75);
 }
 
 .items-wrapper {
@@ -40,4 +43,21 @@
     position:relative;
     top: 7px;
     display:inline-block;
+}
+
+//colors for items
+.status-Reserved {
+    background-color: #33b5e5;
+}
+
+.status-Available {
+    background-color: #00C851;
+}
+
+.status-Unavailable {
+    background-color: #ff4444;
+}
+
+.status-Occupied {
+    background-color: #ffbb33;
 }
