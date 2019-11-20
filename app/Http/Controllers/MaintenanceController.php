@@ -72,13 +72,13 @@ class MaintenanceController extends Controller
             $currentTable = MaintenanceItem::where('maintenance_id', $create->id)->get();
             if(count($currentTable) > 0){
                 MaintenanceItem::where('maintenance_id', $create->id)->delete();
-                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,true);
-                MaintenanceItem::insert($maintenance_items);
+                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,true,$currentTable);
             }
             else {
-                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,false);
-                MaintenanceItem::insert($maintenance_items);
+                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,false,$currentTable);
             }
+
+            MaintenanceItem::insert($maintenance_items);
 
             $row_data = Maintenance::find($create->id);
             $response['stat'] = "success";
@@ -159,7 +159,7 @@ class MaintenanceController extends Controller
         return 2;//return as active if not found
     }
 
-    public function createArrayItems($row,$col,$id,$type){
+    public function createArrayItems($row,$col,$id,$type,$currentTable){
         for ($r=1;$r<=$row;$r++) {
             for($c=1;$c<=$col;$c++){
                 $description = 'R'.$r.'C'.$c;
