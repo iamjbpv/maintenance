@@ -74,21 +74,12 @@ class MaintenanceController extends Controller
             $currentTable = [];
             //lets use chunk to handle large amounts of data
             MaintenanceItem::where('maintenance_id',$create->id)->orderBy('id')->chunk(1000, function ($items) use(&$currentTable){
-                foreach ($items as $item) {
-                    $currentTable[] = array(
-                        'id'=> $item->id,
-                        'description'=> $item->description,
-                        'maintenance_id'=> $item->maintenance_id,
-                        'table_status_id'=> $item->table_status_id,
-                        'row_position'=> $item->row_position,
-                        'col_position'=> $item->col_position
-                    );
-                }
+                $currentTable[] = $items->toArray();
             });
 
             if(count($currentTable) > 0){
                 MaintenanceItem::where('maintenance_id', $create->id)->delete();
-                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,true,$currentTable);
+                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,true,$currentTable[0]);
             }
             else {
                 $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,false,$currentTable);
@@ -133,20 +124,12 @@ class MaintenanceController extends Controller
     {
         $maintenance = [];
         //lets use chunk to handle large amounts of data
-        MaintenanceItem::where('maintenance_id',$create->id)->orderBy('id')->chunk(1000, function ($items) use(&$currentTable){
-            foreach ($items as $item) {
-                $maintenance[] = array(
-                    'id'=> $item->id,
-                    'description'=> $item->description,
-                    'maintenance_id'=> $item->maintenance_id,
-                    'table_status_id'=> $item->table_status_id,
-                    'row_position'=> $item->row_position,
-                    'col_position'=> $item->col_position
-                );
-            }
+        MaintenanceItem::with('tablestatus')->where('maintenance_id',request()->id)->orderBy('id')->chunk(1000, function ($items) use(&$maintenance){
+           
+                $maintenance[] = $items;
         });
         // $maintenance = MaintenanceItem::with('tablestatus')->where('maintenance_id', request()->id)->get();
-    	return $maintenance;
+    	return $maintenance[0];
     }
 
     public function updateItem()
