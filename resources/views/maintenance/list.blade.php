@@ -1,5 +1,5 @@
 <div class="card"  id="wrapper_table_list">
-    <div class="card-header align-middle">Maintenance <button class="float-right btn btn-success btn-sm" id="add_info">Add</button></div>
+    <div class="card-header align-middle"><h4 class="card-title">Maintenance</h4> <button class="float-right btn btn-success btn-sm" id="add_info">Add</button></div>
         <div class="card-body">
             <table class="table table-striped table-bordered dataTable" id="tbl_maintenance">
                 <thead>

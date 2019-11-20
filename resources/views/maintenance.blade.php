@@ -134,8 +134,8 @@ $(document).ready(function(){
                     targets:[5],
                     render: function (data, type, full, meta){
                         return '<center>'+
-                          '<button class="btn btn-primary btn-sm btn-xsj" name="edit_info"><i class="fas fa-edit"></i></button>'+
-                          '<button name="remove_info" class="btn btn-danger btn-sm btn-xsj"><i class="fas fa-trash"></i></button>'+
+                          '<button class="btn btn-primary btn-sm btn-xsj mx-0" name="edit_info"><i class="fas fa-edit"></i></button>'+
+                          '<button name="remove_info" class="btn btn-danger btn-sm btn-xsj mx-1"><i class="fas fa-trash"></i></button>'+
                           '<a href="/maintenance/items/'+full.id+'" name="preview_items" class="btn btn-secondary btn-sm btn-xsj"><i class="fas fa-list"></i></button>'+
                         '</center>';
                     }
