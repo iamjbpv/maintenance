@@ -70,38 +70,13 @@ class MaintenanceController extends Controller
         
         if ($store) {
             $currentTable = MaintenanceItem::where('maintenance_id', $create->id)->get();
-            // echo count($currentTable);
-            // print_r($currentTable);
             if(count($currentTable) > 0){
-                $deletedRows = MaintenanceItem::where('maintenance_id', $create->id)->delete();
-                for ($r=1;$r<=$validated["row"];$r++) {
-                    for($c=1;$c<=$validated["column"];$c++){
-                        $description = 'R'.$r.'C'.$c;
-                        $table_status_id = self::findLastValue($currentTable, $description, $create->id);
-                        $maintenance_items[] = array(
-                            'description'=> $description,
-                            'maintenance_id'=> $create->id,
-                            'table_status_id'=> $table_status_id,
-                            'row_position'=> $r,
-                            'col_position'=> $c,
-                        );
-                    }
-                }
+                MaintenanceItem::where('maintenance_id', $create->id)->delete();
+                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,true);
                 MaintenanceItem::insert($maintenance_items);
             }
             else {
-                for ($r=1;$r<=$validated["row"];$r++) {
-                    for($c=1;$c<=$validated["column"];$c++){
-                        $description = 'R'.$r.'C'.$c;
-                        $maintenance_items[] = array(
-                            'description'=> $description,
-                            'maintenance_id'=> $create->id,
-                            'table_status_id'=> '2',
-                            'row_position'=> $r,
-                            'col_position'=> $c,
-                        );
-                    }
-                }
+                $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,false);
                 MaintenanceItem::insert($maintenance_items);
             }
 
@@ -166,7 +141,11 @@ class MaintenanceController extends Controller
 
     public function generateAreaCode()
     {
-        return mt_rand(100, 999);
+        $area_code = mt_rand(100, 9999);
+        while(Maintenance::where('area_code', $area_code)->count() > 0){
+           $area_code = mt_rand(100, 9999);
+        }
+        return $area_code;
     }
 
     public function findLastValue($currentTable, $description, $maintenance_id)
@@ -178,5 +157,23 @@ class MaintenanceController extends Controller
         }
 
         return 2;//return as active if not found
+    }
+
+    public function createArrayItems($row,$col,$id,$type){
+        for ($r=1;$r<=$row;$r++) {
+            for($c=1;$c<=$col;$c++){
+                $description = 'R'.$r.'C'.$c;
+                $table_status_id = ($type) ? self::findLastValue($currentTable, $description, $id) : '2';
+                $maintenance_items[] = array(
+                    'description'=> $description,
+                    'maintenance_id'=> $id,
+                    'table_status_id'=> $table_status_id,
+                    'row_position'=> $r,
+                    'col_position'=> $c,
+                );
+            }
+        }
+
+        return $maintenance_items;
     }
 }
