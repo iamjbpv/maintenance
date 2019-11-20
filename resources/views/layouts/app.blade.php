@@ -84,6 +84,7 @@
     <script src="{{ asset('js/mdb.min.js') }}"></script>
     <script src="{{ asset('js/addons/datatables.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="{{ asset('js/main.js') }}"></script>
     
     @yield('script')
 </body>

@@ -76,6 +76,7 @@
         _selectedStatusId = $(this).data('id')
         $('#frm_status input,textarea,select').each(function(){
             var _elem=$(this);
+            _elem.val('');
             _elem.next().html('');
         });
         $('#modal_change_status').modal('toggle');
@@ -146,36 +147,6 @@
             },
             beforeSend: showSpinningProgress($('#btn_save_status'),true)
         });
-    };
-
-    function toast(type, message, title) {
-        toastr.options = {
-            "closeButton": true,
-            "debug": true,
-            "newestOnTop": false,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "preventDuplicates": false,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        }
-        toastr[type](message, title);
-    }
-
-    var showSpinningProgress = function(e,type,text='Save'){
-      if(type) {
-        e.html('<div class="custom-spinner spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>');
-      }else {
-        e.html(text);
-      }
-        
     };
 
     function format ( data ) {
