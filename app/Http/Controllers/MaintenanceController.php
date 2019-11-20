@@ -7,6 +7,8 @@ use App\Maintenance;
 use App\MaintenanceItem;
 use App\TableStatus;
 
+use DB;
+
 class MaintenanceController extends Controller
 {
     /**
@@ -69,7 +71,21 @@ class MaintenanceController extends Controller
         $store = $create->save();
         
         if ($store) {
-            $currentTable = MaintenanceItem::where('maintenance_id', $create->id)->get();
+            $currentTable = [];
+            //lets use chunk to handle large amounts of data
+            MaintenanceItem::where('maintenance_id',$create->id)->orderBy('id')->chunk(1000, function ($items) use(&$currentTable){
+                foreach ($items as $item) {
+                    $currentTable[] = array(
+                        'id'=> $item->id,
+                        'description'=> $item->description,
+                        'maintenance_id'=> $item->maintenance_id,
+                        'table_status_id'=> $item->table_status_id,
+                        'row_position'=> $item->row_position,
+                        'col_position'=> $item->col_position
+                    );
+                }
+            });
+
             if(count($currentTable) > 0){
                 MaintenanceItem::where('maintenance_id', $create->id)->delete();
                 $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,true,$currentTable);
@@ -77,12 +93,11 @@ class MaintenanceController extends Controller
             else {
                 $maintenance_items = self::createArrayItems($validated["row"],$validated["column"],$create->id,false,$currentTable);
             }
-
-            MaintenanceItem::insert($maintenance_items);
-            // foreach (array_chunk($maintenance_items,1000) as $chunk_items)  
-            // {
-            //     MaintenanceItem::insert($chunk_items);
-            // }
+            //lets use chunk to handle large amounts of data
+            foreach (array_chunk($maintenance_items,1000) as $chunk_items)  
+            {
+                MaintenanceItem::insert($chunk_items);
+            }
 
             $row_data = Maintenance::find($create->id);
             $response['stat'] = "success";
@@ -116,7 +131,21 @@ class MaintenanceController extends Controller
 
     public function previewItems()
     {
-        $maintenance = MaintenanceItem::with('tablestatus')->where('maintenance_id', request()->id)->get();
+        $maintenance = [];
+        //lets use chunk to handle large amounts of data
+        MaintenanceItem::where('maintenance_id',$create->id)->orderBy('id')->chunk(1000, function ($items) use(&$currentTable){
+            foreach ($items as $item) {
+                $maintenance[] = array(
+                    'id'=> $item->id,
+                    'description'=> $item->description,
+                    'maintenance_id'=> $item->maintenance_id,
+                    'table_status_id'=> $item->table_status_id,
+                    'row_position'=> $item->row_position,
+                    'col_position'=> $item->col_position
+                );
+            }
+        });
+        // $maintenance = MaintenanceItem::with('tablestatus')->where('maintenance_id', request()->id)->get();
     	return $maintenance;
     }
 
@@ -155,7 +184,7 @@ class MaintenanceController extends Controller
 
     public function findLastValue($currentTable, $description, $maintenance_id)
     {
-        foreach($currentTable->toArray() as $current){
+        foreach($currentTable as $current){
             if(in_array($description, $current) && $current['maintenance_id'] == $maintenance_id) {
                 return $current['table_status_id'];
             }
